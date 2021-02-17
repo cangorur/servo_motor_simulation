@@ -1,0 +1,74 @@
+#!/bin/bash
+
+if ! [ -x "$(command -v tmux)" ]; then
+  echo 'Error: tmux is not installed.' >&2
+  exit 1
+fi
+
+homedir="$( cd "$( dirname "$0" )" && pwd )"
+
+NUMBER=1
+RUN_GATEWAY="False"
+PORT=10000
+
+for ((i=1; i<=$#; i++));
+do
+  val=$((i+1))
+  case "${!i}" in
+      "--conveyors") echo "Provided number of motors to run in parallel: ${!val}"
+  	      NUMBER=${!val}
+          echo "Launching the conveyor agent(s) ..."
+  	      ;;
+      "--gateway") echo "Running gateway agents for each conveyor!"
+  	      RUN_GATEWAY="True"
+  	      ;;
+      "--port") echo "Port to access: ${!val} and +1 for other conveyors (if more than one)"
+  	      PORT=${!val}
+  	      ;;
+      "--help") echo "   [--conveyors]:    If provided, followed by an integer number, it automatically launches that number of conveyor belts in parallel. Not recommended to launch more than 3 (gets heavy). If not provided, by default it is 1"
+  	      echo ""
+          echo "   [--gateway]:    If provided, it runs gateways for each of the conveyor launched. The gateway starts a websocket (RESTful) to communicate with the devices also from outside of ROS environment. By default, it DOES NOT run any gateway."
+  	      echo ""
+          echo "   [--port]:    If provided, access to REST interfaces is through the given port. For each conveyor, a unique port is defined. The first conveyor takes the provided port, the rest adds +1. E.g., if port:10000 for conveyor_belt_agent_1, then it is 10001 for the 2nd agent. By default (if not provided), it starts from 10000."
+          echo ""
+  	      exit
+          ;;
+  esac
+done
+
+echo "cd ${homedir} && source devel/setup.sh"
+
+tmux set-option -g default-shell "/bin/bash"
+
+tmux new -s rosc -d
+# Launch the conveyor simulation agents
+tmux send-keys -t rosc.0 "echo "source ~/.bashrc" && cd ${homedir}/src/dobot/launch && ./launch.sh $NUMBER" enter
+sleep 3
+
+# For the gateway agents
+if [ "$RUN_GATEWAY" == "True" ];
+then
+  function int_handler()
+  {
+  	echo "Ctrl-C caught...performing clean up"
+  	for ((i=1; i<=$NUMBER; ++i ))
+  	do
+  		rosnode kill /conveyor_gateway_$i
+  	done
+  	echo "Cleanup finished."
+
+  	exit 0
+  }
+
+  trap "int_handler" SIGINT SIGTERM
+
+  # launch the gateways
+  for ((i=1; i<=$NUMBER; ++i ))
+  do
+    tmux split-window -t rosc
+    tmux select-layout even-vertical
+    portval=$((PORT+i-1))
+    tmux send-keys -t rosc.$CG "cd ${homedir} && source devel/setup.bash  && rosrun dobot conveyor_gateway $i $portval" enter
+  done
+fi
+tmux a

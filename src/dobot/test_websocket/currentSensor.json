@@ -1,0 +1,17 @@
+{
+"payload":
+	{
+	    "requester": {
+		"id": "current-sensor-driver"
+	    },
+	    "requestee": {
+		"id": "current-sensor-service"
+	    },
+	    "request": {
+		"current": ""
+	    },
+	    "response": {
+		"current-sensor-service": ""
+	    }
+	}
+}

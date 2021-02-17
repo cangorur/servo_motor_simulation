@@ -1,0 +1,37 @@
+#!/bin/bash
+
+homedir="$( cd "$( dirname "$0" )" && pwd )"
+
+SPEED=""
+MOTOR_ID=1
+
+for (( i=1; i<=$#; i++));
+do
+  val=$((i+1))
+  case "${!i}" in
+      "--id")
+          val=$((i+1))
+          echo "Provided motor_id to change the speed: ${!val}"
+          MOTOR_ID=${!val}
+          ;;
+      "--speed") echo "Provided speed value: ${!val} m/s"
+  	      SPEED=${!val}
+  	      ;;
+      "--help") echo " [--id]: ID (as an integer number) of the motor to control the speed. By default it is 1. "
+          echo " "
+          echo " [--speed]:  (Optional) Sets the speed of the motor. If not provided, by default motor runs with 25m/s. int and float is possible."
+          exit
+          ;;
+  esac
+done
+
+echo "cd ${homedir} && source devel/setup.bash"
+
+if [ "$SPEED" != "" ];
+then
+    cmd="rosservice call /conveyor_belt_agent_$MOTOR_ID/setMotorSpeedSimMid $'isEnabled: true\nspeed: $SPEED'"
+    eval $cmd
+else
+    cmd="rosservice call /conveyor_belt_agent_$MOTOR_ID/setMotorSpeedSimMid $'isEnabled: true\nspeed: 25'"
+    eval $cmd
+fi

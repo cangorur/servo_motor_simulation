@@ -1,0 +1,6 @@
+# Waiting time.
+uint32 timeout
+---
+# Communication status. 0: NoError; 1: BufferFull; 2: Timeout.
+int32 result
+uint64 queuedCmdIndex

@@ -1,0 +1,16 @@
+float32 pickX
+float32 pickY
+float32 pickZ
+float32 placeX
+float32 placeY
+float32 placeZ
+float32 placeInt
+int32 placeLocR
+int32 placeLocG
+int32 placeLocB
+int32 boxLimR
+int32 boxLimG
+int32 boxLimB
+int32 storageLim
+---
+int32 result

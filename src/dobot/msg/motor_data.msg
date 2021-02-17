@@ -1,0 +1,9 @@
+float64 timestamp
+float64 requested_velocity
+float64 velocity
+float64 temperature
+float64 torque
+float64 current
+float64 effective_voltage
+float64 power_in
+float64 acceleration

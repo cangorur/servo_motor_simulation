@@ -1,0 +1,4 @@
+bool isEnabled # To disable and enable torque
+float64 speed # Speed request
+---
+bool success # Sending speed request to motor is successful

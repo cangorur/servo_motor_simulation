@@ -1,0 +1,9 @@
+# Specify motor port. 0: Stepper 1; 1: Stepper 2.
+uint8 index
+# Continuous motor control enable. 1: enable.
+uint8 isEnabled
+# Speed range +-57 rpm.
+float32 speed
+bool isQueued
+---
+int32 result

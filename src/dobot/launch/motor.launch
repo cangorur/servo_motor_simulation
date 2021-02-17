@@ -1,0 +1,4 @@
+<launch>
+<node pkg="dobot" type="dynamixel_servo_agent.py" name="dynamixel_servo_agent" output="screen" respawn="true" />
+<node pkg="dobot" type="conveyor_belt_agent" name="conveyor_belt_agent_0" output="screen" respawn="true" />
+</launch>

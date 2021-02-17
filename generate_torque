@@ -1,0 +1,29 @@
+#!/bin/bash
+
+homedir="$( cd "$( dirname "$0" )" && pwd )"
+
+ENABLE=""
+case "$1" in
+    "--enable") echo "A ramp torque is applied!"
+	      ENABLE=true
+	      ;;
+    "--disable") echo "The torque is removed!"
+	      ENABLE=false
+	      ;;
+    "--help") echo "   [--enable]:  (Optional) Adds an additional ramp torque that increases in time. This causes an increase in the power values."
+        echo " "
+        echo "   [--disable]:  Disables or deactivates any torque that is previously applied."
+        exit
+        ;;
+esac
+
+cd ${homedir} && source devel/setup.sh
+
+if [ "$ENABLE" != false ];
+then
+    cmd="rosservice call /conveyor_belt_agent_1/generateAbnormalTorqueSimMid $'isEnabled: true\nindex: 0\ntype: ramp\nparam1: 0.01\nparam2: 0.0\nholdTime: 100.0'"
+    eval $cmd
+else
+    cmd="rosservice call /conveyor_belt_agent_1/generateAbnormalTorqueSimMid $'isEnabled: false'"
+    eval $cmd
+fi

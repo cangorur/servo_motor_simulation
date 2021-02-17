@@ -1,0 +1,8 @@
+<package>
+	<name>dobot</name>
+	<version>1.1.01</version>
+	
+	<build_depend>message_generation</build_depend>
+	<build_depend>geometry_msgs</build_depend>
+	<build_depend>std_msgs</build_depend>
+</package>			

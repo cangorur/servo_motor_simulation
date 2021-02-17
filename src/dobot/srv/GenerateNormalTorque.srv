@@ -1,0 +1,5 @@
+bool isEnabled
+int8 index
+float32 torque
+---
+bool success

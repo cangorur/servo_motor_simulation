@@ -1,0 +1,9 @@
+# Motor on or off. 1: on
+uint8 isOn
+# Specify motor port. 0: Stepper 1; 1: Stepper 2.
+uint8 index
+# Speed. 800: recommended.
+float32 speed
+bool isQueued
+---
+int32 result

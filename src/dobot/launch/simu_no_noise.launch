@@ -1,0 +1,7 @@
+<launch>
+  <!-- declare arg to be passed in -->
+  <arg name="motor_id" />
+
+  <node pkg="dobot" type="simulation_servo_agent_no_noise" name="simulation_servo_agent_$(arg motor_id)" output="screen"/>
+  <node pkg="dobot" type="conveyor_belt_agent" name="conveyor_belt_agent_$(arg motor_id)" output="screen"/>
+</launch>

@@ -1,0 +1,30 @@
+{"payload":
+	{
+	    "requester": {
+		"id": "dobot-conveyor-driver"
+	    },
+	    "requestee": {
+		"id": "conveyor-1"
+	    },
+	    "request": {
+		"switch": "on",
+		"speed": {
+		    "contSpeedReq": "",
+		    "oneTimeSpeedReq": "20"
+		},
+		"motorData": "",
+		"torqueRequest": {
+		    "abnormal":{
+		      "type": "",
+		      "param1": "",
+		      "param2": "",
+		      "holdTime": ""
+		    },
+		    "normal": ""
+		}
+	    },
+	    "response": {
+		"conveyor-service-1": ""
+	    }
+	}
+}

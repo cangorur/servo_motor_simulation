@@ -70,85 +70,11 @@ add_message_files(
   FILES
   motor_data.msg
   motor_raw_data.msg
-  pid_control_data.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  SetCmdTimeout.srv
-
-  GetDeviceSN.srv
-  SetDeviceName.srv
-  GetDeviceName.srv
-  GetDeviceVersion.srv
-
-  GetPose.srv
-
-  GetAlarmsState.srv
-  ClearAllAlarmsState.srv
-
-  SetHOMEParams.srv
-  GetHOMEParams.srv
-  SetHOMECmd.srv
-
-  SetEndEffectorParams.srv
-  GetEndEffectorParams.srv
-  SetEndEffectorLaser.srv
-  GetEndEffectorLaser.srv
-  SetEndEffectorSuctionCup.srv
-  GetEndEffectorSuctionCup.srv
-  SetEndEffectorGripper.srv
-  GetEndEffectorGripper.srv
-
-  SetJOGJointParams.srv
-  GetJOGJointParams.srv
-  SetJOGCoordinateParams.srv
-  GetJOGCoordinateParams.srv
-  SetJOGCommonParams.srv
-  GetJOGCommonParams.srv
-  SetJOGCmd.srv
-
-  SetPTPJointParams.srv
-  GetPTPJointParams.srv
-  SetPTPCoordinateParams.srv
-  GetPTPCoordinateParams.srv
-  SetPTPJumpParams.srv
-  GetPTPJumpParams.srv
-  SetPTPCommonParams.srv
-  GetPTPCommonParams.srv
-  SetPTPCmd.srv
-
-  SetCPParams.srv
-  GetCPParams.srv
-  SetCPCmd.srv
-
-  SetARCParams.srv
-  GetARCParams.srv
-  SetARCCmd.srv
-
-  SetWAITCmd.srv
-
-  SetTRIGCmd.srv
-
-  SetIOMultiplexing.srv
-  GetIOMultiplexing.srv
-  SetIODO.srv
-  GetIODO.srv
-  SetIOPWM.srv
-  GetIOPWM.srv
-  GetIODI.srv
-  GetIOADC.srv
-  SetEMotor.srv
-  SetColorSensor.srv
-  SetInfraredSensor.srv
-  GetColorSensor.srv
-  GetInfraredSensor.srv
-
-  SetQueuedCmdStartExec.srv
-  SetQueuedCmdStopExec.srv
-  SetQueuedCmdForceStopExec.srv
-  SetQueuedCmdClear.srv
 
   InitConveyorBeltAgent.srv
   InitMotorControlApp.srv
@@ -156,11 +82,9 @@ add_service_files(
   ContMotorControl.srv
   OneTimeMotorControl.srv
 
-  SetDynamixelSpeed.srv
+  SetMotorSpeed.srv
   GenerateAbnormalTorque.srv
   GenerateNormalTorque.srv
-  ReadReg.srv
-  WriteReg.srv
 )
 
 ## Generate actions in the 'action' folder

@@ -207,17 +207,15 @@ Note that the service definitions of generateNormalTorqueSimMid and generateAbno
 For detailed explanations please refer to the previous part.
 
 ## Topics
-***Application layer***:
-```
-/conveyor_control_app/task_app
-```
+
 ***Middleware layer***:
 ```
-/conveyor_belt_agent_<integer ID of the real motor>/infrared_app
-/conveyor_belt_agent_<integer ID of the real motor>/motor_data_operated
-/conveyor_belt_agent_<integer ID of the simulation motor>/abnormal_torque
-/conveyor_belt_agent_<integer ID of the simulation motor>/infrared_app
 /conveyor_belt_agent_<integer ID of the simulation motor>/motor_data_operated
+/conveyor_belt_agent_<integer ID of the simulation motor>/abnormal_torque
+```
+***Physical layer***:
+```
+/simulation_servo_agent_<integer ID of the simulation motor>/motor_raw_data
 ```
 
 ## Documentation
@@ -226,13 +224,17 @@ rosdoc_lite YOUR_PATH/servo_motor_simulation/src/dobot
 ```
 This will generate the doxygen style documentation under doc/ in YOUR_PATH/dobot_ws/src/dobot.
 
-## Historical Versions
-Integration Version 3.1 - 19th Nov 2018
-Document Version 3.4 - 17th Feb 2020 (simplified version for only simulation)
-Document Version 3.3 - 17th Dec 2018
-Document Version 3.2 - 26th Nov 2018
+## Versions
+Version 1.0 - 17th Feb 2021 (simplified version for only simulation)
+
+Version 3.3 - 17th Dec 2018
+
+Version 3.2 - 26th Nov 2018
 
 ## References
+
 [1] http://www.robotis.us/dynamixel-xl430-w250-t/
+
 [2] https://chariot.gt-arc.com/
+
 [3] https://github.com/GT-ARC/chariot-ml-engine

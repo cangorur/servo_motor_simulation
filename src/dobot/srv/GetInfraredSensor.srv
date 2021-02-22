@@ -1,4 +1,0 @@
-uint8 infraredPort
----
-int32 result
-uint8 value

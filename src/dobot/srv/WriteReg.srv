@@ -1,5 +1,0 @@
-int16 id
-int16 reg_address
-int16[] data
----
-bool success

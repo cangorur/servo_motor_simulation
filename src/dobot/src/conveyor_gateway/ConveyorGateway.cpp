@@ -41,10 +41,10 @@ void ConveyorGateway::initialize() {
 
 	if (gatewayAgentID == "0") { // real conveyor motor
 			infraredSensorSub = pn.subscribe(string("/conveyor_belt_agent_") + gatewayAgentID + "/infrared_app", 1000, &ConveyorGateway::infraredCallback, this);
-			setMotorSpeedClient = pn.serviceClient<dobot::SetDynamixelSpeed>(string("/conveyor_belt_agent_") + gatewayAgentID + "/setMotorSpeedRealMid");
+			setMotorSpeedClient = pn.serviceClient<dobot::SetMotorSpeed>(string("/conveyor_belt_agent_") + gatewayAgentID + "/setMotorSpeedRealMid");
 	}
 	else if (gatewayAgentID != ""){	// simulated conveyor motors
-			setMotorSpeedClient = pn.serviceClient<dobot::SetDynamixelSpeed>(string("/conveyor_belt_agent_") + gatewayAgentID + "/setMotorSpeedSimMid");
+			setMotorSpeedClient = pn.serviceClient<dobot::SetMotorSpeed>(string("/conveyor_belt_agent_") + gatewayAgentID + "/setMotorSpeedSimMid");
 			genConveyorLoadClient = pn.serviceClient<dobot::GenerateNormalTorque>(string("/conveyor_belt_agent_") + gatewayAgentID + "/generateNormalTorqueSimMid");
 			genAbnConveyorLoadClient = pn.serviceClient<dobot::GenerateAbnormalTorque>(string("/conveyor_belt_agent_") + gatewayAgentID + "/generateAbnormalTorqueSimMid");
 	}
@@ -182,7 +182,7 @@ boost::property_tree::ptree ConveyorGateway::RealConveyorBeltServices(boost::pro
 		speedReq = "";
 	}
 
-	dobot::SetDynamixelSpeed speed_srv;
+	dobot::SetMotorSpeed speed_srv;
 
 	if(isEnabled == "on"){
 		if(speedReq != "" && speedReq != prevSpeedReqReal){   // ignore speed req when it is ""
@@ -304,7 +304,7 @@ boost::property_tree::ptree ConveyorGateway::SimuConveyorBeltServices(boost::pro
 		normalTorqueReq = "";
 	}
 
-	dobot::SetDynamixelSpeed speed_srv;
+	dobot::SetMotorSpeed speed_srv;
 
 	if(isEnabled == "on"){
 		if(speedReq != "" && speedReq != prevSpeedReqSimu){   // ignore speed req when it is ""

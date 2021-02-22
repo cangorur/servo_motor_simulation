@@ -50,17 +50,9 @@ bool ConveyorBeltAgent::initialize()
 {
     ros::NodeHandle pn("~");
 
-    if (nodeName.substr(found) == "0")
-    {
-        motor_raw_data_subscriber = pn.subscribe("/dynamixel_servo_agent/motor_raw_data", 1000, &ConveyorBeltAgent::motorRawDataCallback,this);
-        receiver = pn.subscribe("/dobot_server_agent/infrared", 1000, &ConveyorBeltAgent::infraredCallback, this);
-        chatterInfraredApp = pn.advertise<std_msgs::UInt8>(string("/") + nodeName + string("/infrared_app"), 1000);
-    }
-    else
-    {
-        motor_raw_data_subscriber = pn.subscribe(simAgentName + "/motor_raw_data", 1000, &ConveyorBeltAgent::motorRawDataCallback,this);
-        extra_torque_publisher = pn.advertise<std_msgs::Float32>(string("/") + nodeName + string("/abnormal_torque"), 1000);
-    }
+    motor_raw_data_subscriber = pn.subscribe(simAgentName + "/motor_raw_data", 1000, &ConveyorBeltAgent::motorRawDataCallback,this);
+    extra_torque_publisher = pn.advertise<std_msgs::Float32>(string("/") + nodeName + string("/abnormal_torque"), 1000);
+
     motor_data_operated_publisher = pn.advertise<dobot::motor_data>(string("/") + nodeName + string("/")+ string("motor_data_operated"), 1000);
 
     initConveyorBeltServices();
@@ -72,28 +64,14 @@ void ConveyorBeltAgent::initConveyorBeltServices()
 {
     ros::NodeHandle pn("~");
 
-    if (nodeName.substr(found) == "0")
-    {
-        conveyorBeltServer = n.advertiseService("/conveyor_belt_agent_0/setMotorSpeedRealMid", &ConveyorBeltAgent::setMotorSpeedRealServiceMid, this);
-        serverVec.push_back(conveyorBeltServer);
-        conveyorBeltServer = n.advertiseService("/conveyor_belt_agent_0/setInfraredSensorMid", &ConveyorBeltAgent::setInfraredSensorServiceMid, this);
-        serverVec.push_back(conveyorBeltServer);
-    }
-    else
-    {
-        conveyorBeltServer = n.advertiseService(string("/") + nodeName + string("/setMotorSpeedSimMid"), &ConveyorBeltAgent::setMotorSpeedSimServiceMid, this);
-        serverVec.push_back(conveyorBeltServer);
-        conveyorBeltServer = n.advertiseService(string("/") + nodeName + string("/generateAbnormalTorqueSimMid"), &ConveyorBeltAgent::generateAbnormalTorqueSimServiceMid, this);
-        serverVec.push_back(conveyorBeltServer);
-        conveyorBeltServer = n.advertiseService(string("/") + nodeName + string("/generateNormalTorqueSimMid"), &ConveyorBeltAgent::generateNormalTorqueSimServiceMid, this);
-        serverVec.push_back(conveyorBeltServer);
-    }
+    conveyorBeltServer = n.advertiseService(string("/") + nodeName + string("/setMotorSpeedSimMid"), &ConveyorBeltAgent::setMotorSpeedSimServiceMid, this);
+    serverVec.push_back(conveyorBeltServer);
+    conveyorBeltServer = n.advertiseService(string("/") + nodeName + string("/generateAbnormalTorqueSimMid"), &ConveyorBeltAgent::generateAbnormalTorqueSimServiceMid, this);
+    serverVec.push_back(conveyorBeltServer);
+    conveyorBeltServer = n.advertiseService(string("/") + nodeName + string("/generateNormalTorqueSimMid"), &ConveyorBeltAgent::generateNormalTorqueSimServiceMid, this);
+    serverVec.push_back(conveyorBeltServer);
 }
 
-void ConveyorBeltAgent::infraredCallback(const std_msgs::UInt8::ConstPtr& msg)
-{
-    tempInfrared = msg->data;
-}
 void ConveyorBeltAgent::motorRawDataCallback(const dobot::motor_raw_data::ConstPtr& msg)
 {
     raw_timestamp = msg->raw_timestamp;
@@ -122,9 +100,6 @@ bool ConveyorBeltAgent::update()
     operated_data.effective_voltage = raw_supply_voltage*raw_pwm;
     operated_data.power_in = operated_data.effective_voltage*raw_current;
     operated_data.acceleration = raw_acceleration;
-    // operated_data.power_out = operated_data.torque*raw_velocity*0.10472; //  2*pi/60
-    msg_app.data = tempInfrared;
-
 
     if (nodeName.substr(found) != "0")
     {
@@ -195,46 +170,7 @@ bool ConveyorBeltAgent::update()
     return true;
 }
 
-bool ConveyorBeltAgent::setInfraredSensorServiceMid(dobot::SetInfraredSensor::Request &req, dobot::SetInfraredSensor::Response &res)
-{
-    ros::NodeHandle nh;
-    ros::ServiceClient client;
-    client = nh.serviceClient<dobot::SetInfraredSensor>("/dobot_server_agent/SetInfraredSensor");
-    dobot::SetInfraredSensor srv;
-
-    srv.request.infraredPort = req.infraredPort;
-    srv.request.enable = req.enable;
-
-    client.call(srv);
-    res.result = srv.response.result;
-
-    return true;
-}
-
-bool ConveyorBeltAgent::setMotorSpeedRealServiceMid(dobot::SetDynamixelSpeed::Request &req, dobot::SetDynamixelSpeed::Response &res)
-{
-    ros::NodeHandle nh;
-    ros::ServiceClient client;
-    client = nh.serviceClient<dobot::SetDynamixelSpeed>("/dynamixel_servo_agent/update_velocity");
-
-    // code for real motor starts:
-    dobot::SetDynamixelSpeed srvm;
-
-    srvm.request.speed = req.speed;
-    srvm.request.isEnabled = req.isEnabled;
-    bool success = false;
-    do{
-        client.call(srvm);
-        success = srvm.response.success;
-    }
-    while(!success);
-
-    res.success = srvm.response.success;
-    return success;
-    // code for real motor ends.
-}
-
-bool ConveyorBeltAgent::setMotorSpeedSimServiceMid(dobot::SetDynamixelSpeed::Request &req, dobot::SetDynamixelSpeed::Response &res)
+bool ConveyorBeltAgent::setMotorSpeedSimServiceMid(dobot::SetMotorSpeed::Request &req, dobot::SetMotorSpeed::Response &res)
 {
     ros::NodeHandle nh;
 

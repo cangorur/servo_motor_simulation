@@ -1,5 +1,0 @@
-uint8 index
-uint8 isEnabled
-float32 speed
----
-int32 result

@@ -1,2 +1,0 @@
-dobot
--DCATKIN_DEVEL_PREFIX=/home/cangorur/Workspace/chariot/conveyor_simulation_guthub/devel -DCMAKE_INSTALL_PREFIX=/home/cangorur/Workspace/chariot/conveyor_simulation_guthub/install -G Unix Makefiles

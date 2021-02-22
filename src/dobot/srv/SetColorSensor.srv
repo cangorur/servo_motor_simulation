@@ -1,7 +1,0 @@
-# Receive color sensor readings enable.
-bool enable
-# Set color sensor port. 0: GP1; 1: GP2; 2: GP4; 3: GP5.
-uint8 colorPort
----
-# Communication status. 0: NoError; 1: BufferFull; 2: Timeout.
-int32 result

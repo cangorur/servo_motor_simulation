@@ -21,8 +21,8 @@
 #include "dobot/GenerateNormalTorque.h"
 #include "dobot/GenerateAbnormalTorque.h"
 
-// TODO: setDynamixelSpeed --> name to be changed
-#include "dobot/SetDynamixelSpeed.h"
+// TODO: SetMotorSpeed --> name to be changed
+#include "dobot/SetMotorSpeed.h"
 
 #include <boost/property_tree/json_parser.hpp>
 
@@ -107,7 +107,7 @@ private:
 	/// ID of the port the gateway will operate
 	int gatewayPortID;
 
-	/// SetDynamixelSpeed client for each motor
+	/// SetMotorSpeed client for each motor
   ros::ServiceClient setMotorSpeedClient;
 
 	/// Motor test client for each motor (cont. changing speed requests)

@@ -1,9 +1,0 @@
----
-# Communication status. 0: NoError; 1: BufferFull; 2: Timeout.
-int32 result
-# Color red reading
-uint8 value_r
-# Color green reading
-uint8 value_g
-# Color blue reading
-uint8 value_b

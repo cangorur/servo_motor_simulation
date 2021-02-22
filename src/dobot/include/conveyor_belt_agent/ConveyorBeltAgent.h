@@ -6,10 +6,8 @@
 #include <string.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Float32.h>
-#include "../DobotDll_rpi/DobotDll.h"
 
-#include "dobot/SetDynamixelSpeed.h"
-#include "dobot/SetInfraredSensor.h"
+#include "dobot/SetMotorSpeed.h"
 #include "dobot/InitConveyorBeltAgent.h"
 #include "dobot/GenerateAbnormalTorque.h"
 #include "dobot/GenerateNormalTorque.h"
@@ -54,40 +52,21 @@ protected:
      * Advertises conveyor belt related services.
      */
     void initConveyorBeltServices();
-    /**
-     * The service to set infrared sensor port.
-     * Service name: /conveyor_belt_agent/setInfraredSensorMid
-     * @param req Request object
-     * @param res Response object
-     * @return True always. Communication info in res.result.
-     */
-    bool setInfraredSensorServiceMid(dobot::SetInfraredSensor::Request &req, dobot::SetInfraredSensor::Response &res);
-    /**
-     * Receives infrared sensor readings.
-     */
-    void infraredCallback(const std_msgs::UInt8::ConstPtr& msg);
+
     /**
     *Receives motor raw data
     */
     void motorRawDataCallback(const dobot::motor_raw_data::ConstPtr& msg);
+
     /**
-        * The MotorControl service in middleware layer. 
-        * Includes functionalities: start/stop control and speed control for real servo motor.
-        * Service name: /conveyor_belt_agent/setMotorSpeedRealMid
-        * @param req Request object
-        * @param res Response object
-        * @return True always. Communication info in res.result.
-        */
-    bool setMotorSpeedRealServiceMid(dobot::SetDynamixelSpeed::Request &req, dobot::SetDynamixelSpeed::Response &res);
-    /**
-        * The MotorControl service in middleware layer. 
+        * The MotorControl service in middleware layer.
         * Includes functionalities: start/stop control and speed control for simulation.
         * Service name: /conveyor_belt_agent/setMotorSpeedSimMid
         * @param req Request object
         * @param res Response object
         * @return True always. Communication info in res.result.
         */
-    bool setMotorSpeedSimServiceMid(dobot::SetDynamixelSpeed::Request &req, dobot::SetDynamixelSpeed::Response &res);
+    bool setMotorSpeedSimServiceMid(dobot::SetMotorSpeed::Request &req, dobot::SetMotorSpeed::Response &res);
     /**
         * The service to generate abnormal torque behaviour generation for simulation.
         * Service name: /conveyor_belt_agent/generateAbnormalTorqueSimMid
@@ -104,10 +83,10 @@ protected:
         * @return True always. Communication info in res.result.
         */
     bool generateNormalTorqueSimServiceMid(dobot::GenerateNormalTorque::Request &req, dobot::GenerateNormalTorque::Response &res);
-    
+
     /// Publisher for abnormal toque
     ros::Publisher extra_torque_publisher;
-    
+
     /// Global variable for abnormal torque behaviour generation
     int extraTorqueFlag = 0;
 
@@ -130,10 +109,10 @@ protected:
     bool initialized = false;
 
     /// Server for initialization
-    ros::ServiceServer initServer; 
+    ros::ServiceServer initServer;
 
     /// Server for conveyor belt
-    ros::ServiceServer conveyorBeltServer; 
+    ros::ServiceServer conveyorBeltServer;
 
     /// List of server
     std::vector<ros::ServiceServer> serverVec;
@@ -141,7 +120,7 @@ protected:
     /// Subscriber for infrared sensor readings from the lower physical layer (DobotArmAgent)
     ros::Subscriber receiver;
 
-    /// Subcscriber for motor raw data reading from physical layer (dynamixel_servo_agent)
+    /// Subcscriber for motor raw data reading from physical layer
     ros::Subscriber motor_raw_data_subscriber;
 
     /// Publisher for infrared sensor readings to the upper application layer (PickAndPlaceApp)
@@ -150,10 +129,7 @@ protected:
     /// Publisher for operated motor data
     ros::Publisher motor_data_operated_publisher;
 
-    /// Temporal parameter for the infrared sensor
-    int tempInfrared = 0;
-
-    /// parameter to label the location where 
+    /// parameter to label the location where
     std::size_t found = std::string::npos;
 
     /// Global variable to hold motor raw data
@@ -162,5 +138,3 @@ protected:
 };
 
 #endif
-
-

@@ -1,6 +1,0 @@
-# Receives infrared readings enable.
-bool enable
-# Set infrared port. Set color sensor port. 0: GP1; 1: GP2; 2: GP4; 3: GP5.
-uint8 infraredPort
----
-int32 result

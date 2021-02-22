@@ -36,7 +36,7 @@ The process of generating the Matlab simulation model are:
 
 ## Installation:
 
-### Customed messages
+### Custom messages
 To customize messages, please follow the instructions in [https://de.mathworks.com/help/robotics/ug/ros-custom-message-support.html](https://de.mathworks.com/help/robotics/ug/ros-custom-message-support.html).
 
 ## Running

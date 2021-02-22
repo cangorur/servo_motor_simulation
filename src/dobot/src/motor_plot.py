@@ -5,38 +5,40 @@
 
 import rospy
 import csv
-import os, sys
+import os, sys, signal
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-from dobot.msg import motor_raw_data
+from dobot.msg import motor_data
 from dobot.srv import *
 
 # global parameters
-timestamp = 0
-velocity = 0
-current = 0
-temperature = 0
-supply_voltage = 0
-pwm = 0
+motor_id=1
 
-current_avg = 0
-velocity_avg = 0
-pwm_avg = 0
-temperature_avg = 0
+timestamp = 0.0
+velocity = 0.0
+current = 0.0
+temperature = 0.0
+voltage = 0.0
+torque = 0.0
+power_in = 0.0
+
+current_avg = 0.0
+velocity_avg = 0.0
+power_in_avg = 0.0
+temperature_avg = 0.0
 
 timestamp_list = []
 current_list = []
 current_avg_list = []
 velocity_list = []
 velocity_avg_list = []
-pwm_list = []
-pwm_avg_list = []
+power_in_list = []
+power_in_avg_list = []
 temperature_list = []
 temperature_avg_list = []
-speed_power_normal_list = []
-speed_power_abnormal_list = []
+speed_power_list = []
 
 res = 0.0
 
@@ -45,152 +47,138 @@ def callback(data):
     # global counter
     # if counter == 1000 :
     #     counter = 1
-    global timestamp, velocity, current, temperature, supply_voltage, pwm
+    global timestamp, velocity, current, temperature, torque, power_in, voltage
 
-    timestamp = data.raw_timestamp
-    velocity = data.raw_velocity
-    current = data.raw_current
-    temperature = data.raw_temperature
-    supply_voltage = data.raw_supply_voltage
-    pwm = data.raw_pwm
+    timestamp = data.timestamp
+    velocity = data.velocity
+    current = data.current
+    temperature = data.temperature
+    voltage = data.effective_voltage
+    power_in = data.power_in
+    torque = data.torque
 
     # else:
     #     counter += 1
 
 def update():
-    global timestamp, velocity, current, temperature, supply_voltage, pwm
-    global current_avg, velocity_avg, pwm_avg, temperature_avg
+    global timestamp, velocity, current, temperature, torque, power_in, voltage
+    global current_avg, velocity_avg, power_in_avg, temperature_avg
     global timestamp_list, current_list, current_avg_list, velocity_list, velocity_avg_list
-    global pwm_list, pwm_avg_list, temperature_list, temperature_avg_list
+    global power_in_list, power_in_avg_list, temperature_list, temperature_avg_list, speed_power_list
     global res
-    
+
     plt.gcf().clear()
-    rospy.loginfo("\n timestamp is %.3f\n velocity is %.3f\n current is %.3f\n temperature is %.3f\n supply_voltage is %.3f \n pwm is %.3f \n", timestamp, velocity, current, temperature, supply_voltage, pwm)
+    rospy.loginfo("\n timestamp is %.3f\n velocity is %.3f\n current is %.3f\n temperature is %.3f\n supply_voltage is %.3f \n input power is %.3f \n", timestamp, velocity, current, temperature, voltage, power_in)
     with open(filepath,'a+') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow([timestamp, velocity, current, temperature, supply_voltage, pwm])
-            csvfile.close()
+        writer = csv.writer(csvfile)
+        writer.writerow([timestamp, velocity, current, temperature, power_in, voltage])
+        csvfile.close()
 
-    # calculate power_in
-    power_in = supply_voltage*pwm/100.0*current/1000.0
-
-    if len(speed_power_normal_list) == 50:
+    if len(speed_power_list) == 50:
         speed_power_list.pop(0)
 
-    if len(speed_power_abnormal_list) == 20:
-        speed_power_list.pop(0)
+    speed_power_list.append([velocity, power_in])
 
-    # real-time classification
-    # rospy.wait_for_service('/predictive_maintenance_app/motor_maintenence_realtime_predict')
-    try:
-        realtime_predict = rospy.ServiceProxy('/predictive_maintenance_app/motor_maintenence_realtime_predict', MotorMaintenanceRealtimePredict)
-        res = realtime_predict(algorithm='OCSVM',col1='Speed',col2='PowerIn',input1=velocity,input2=power_in)
-    except rospy.ServiceException as e:
-        print "Real-time predictive maintenance classification service call failed: %s"%e
-
-    if res == 1.0:
-        speed_power_normal_list.append([velocity, power_in])
-    else:
-         speed_power_abnormal_list.append([velocity, power_in])
-
-    # calculate the last 20 elments' moving average
-    if len(current_list) == 20:
+    # calculate the last 1 elments' moving average
+    # TODO: Update the value here for a moving averate demonstration
+    if len(current_list) == 1:
         current_avg = np.mean(current_list)
         velocity_avg = np.mean(velocity_list)
-        pwm_avg = np.mean(pwm_list)
+        power_in_avg = np.mean(power_in_list)
         temperature_avg = np.mean(temperature_list)
-
         current_list.pop(0)
         velocity_list.pop(0)
-        pwm_list.pop(0)
+        power_in_list.pop(0)
         temperature_list.pop(0)
 
     current_list.append(current)
     velocity_list.append(velocity)
-    pwm_list.append(pwm)
+    power_in_list.append(power_in)
     temperature_list.append(temperature)
     timestamp_list.append(timestamp)
 
     current_avg_list.append(current_avg)
     velocity_avg_list.append(velocity_avg)
-    pwm_avg_list.append(pwm_avg)
+    power_in_avg_list.append(power_in_avg)
     temperature_avg_list.append(temperature_avg)
 
-    # handle the situation when the lists are full
-    if len(timestamp_list) == 101:
+    # remove when the lists are full
+    if len(timestamp_list) == 50:
         timestamp_list.pop(0)
 
-    if len(current_avg_list) == 101:
+    if len(current_avg_list) == 50:
         current_avg_list.pop(0)
         velocity_avg_list.pop(0)
-        pwm_avg_list.pop(0)
+        power_in_avg_list.pop(0)
         temperature_avg_list.pop(0)
 
     plt.subplot(221)
     plt.scatter(timestamp_list, current_avg_list)
     plt.plot(timestamp_list, current_avg_list)
-    plt.ylim(min(current_avg_list)-100,max(current_avg_list)+100)
+    plt.ylim(min(current_avg_list)-10,max(current_avg_list)+10)
     plt.xlim(min(timestamp_list), max(timestamp_list))
     plt.xlabel('Time (s)')
     plt.ylabel('Current (mA)')
     plt.title('Current')
 
     plt.subplot(222)
-    plt.scatter(timestamp_list, pwm_avg_list)
-    plt.plot(timestamp_list, pwm_avg_list)
-    plt.ylim(min(pwm_avg_list)-10,max(pwm_avg_list)+10)
+    plt.scatter(timestamp_list, power_in_avg_list)
+    plt.plot(timestamp_list, power_in_avg_list)
+    plt.ylim(min(power_in_avg_list)-10,max(power_in_avg_list)+10)
     plt.xlim(min(timestamp_list), max(timestamp_list))
     plt.xlabel('Time (s)')
-    plt.ylabel('PWM (%)')
-    plt.title('PWM')    
+    plt.ylabel('Power In (W)')
+    plt.title('Input Power')
 
     plt.subplot(223)
     plt.scatter(timestamp_list, velocity_avg_list)
     plt.plot(timestamp_list, velocity_avg_list)
-    plt.ylim(min(velocity_avg_list)-5, max(velocity_avg_list)+5)
+    plt.ylim(min(velocity_avg_list)-10, max(velocity_avg_list)+10)
     plt.xlim(min(timestamp_list), max(timestamp_list))
     plt.xlabel('Time (s)')
     plt.ylabel('Velocity (r/min)')
     plt.title('Velocity')
 
-    # plt.subplot(224)
-    # plt.scatter(timestamp_list, temperature_avg_list)
-    # plt.plot(timestamp_list, temperature_avg_list)
-    # plt.ylim(min(temperature_avg_list)-5, max(temperature_avg_list)+5)
-    # plt.xlim(min(timestamp_list), max(timestamp_list))
-    # plt.xlabel('Time (s)')
-    # plt.ylabel('Temperature (degC)')
-    # plt.title('Temperature')
     speed_power_array = np.array(speed_power_list)
 
-    plt.subplot(224)    
-    plt.scatter(data_csv[:, 0], data_csv[:, 1])
+    plt.subplot(224)
     plt.scatter(speed_power_array[:,0], speed_power_array[:,1], c="g")
     plt.scatter(speed_power_array[:,0], speed_power_array[:,1], c="r")
     plt.xlabel('Speed (r/min)')
-    plt.ylabel('Power (W)')
+    plt.ylabel('Power In (W)')
     plt.title('Speed-Power Graph')
 
     plt.pause(0.02)
-        
-##Keep on listening data in 'my_topic' channel
+
+##Keep on listening data from the motor
 def listener():
     rospy.init_node('talk', anonymous=True)
     with open(filepath,'w') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Timestamp", "Velocity", "Current", "Temperature", "Supply_voltage", "PWM"])
+        writer.writerow(["Timestamp", "Velocity", "Current", "Temperature", "Input Power", "Input Voltage"])
         csvfile.close()
-    rospy.Subscriber("dynamixel_servo_agent/motor_raw_data", motor_raw_data, callback)
+    rospy.Subscriber("/conveyor_belt_agent_"+str(motor_id)+"/motor_data_operated", motor_data, callback)
 
     # spin() simply keeps python from exiting until this node is stopped
     # rospy.spin()
 
+def signal_handler(signal, frame):
+    sys.exit(0)
 
 if __name__ == '__main__':
     ##Define data source path
+
+    if len(sys.argv) < 2:
+        print "Missing arguments: ID of the motor as an integer. E.g., python motor_plot.py 2 # this will plot real-time data of motor_2"
+        sys.exit(0)
+    else:
+        motor_id = sys.argv[1]
+
     path = sys.path[0]
-    filepath = path + "/motor_data.csv"
+    filepath = path + "/motor_data_"+str(motor_id)+".csv"
     # counter = 1
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     # # training
     # try:
@@ -199,23 +187,12 @@ if __name__ == '__main__':
     # except rospy.ServiceException as e:
     #     print "Real-time predictive maintenance classification service call failed: %s"%e
 
-    # read data from csv file
-    with open('output.csv', 'r') as f:
-      reader = csv.reader(f)
-      data_csv = list(reader)
-
-    data_csv = np.array(data_csv[1:])
-    data_csv = data_csv.astype(np.float)
-
     listener()
-    rate = rospy.Rate(20)
+    rate = rospy.Rate(50)
 
     while not rospy.is_shutdown():
         update()
         rate.sleep()
 
     plt.show()
-
     rospy.spin()
-
-

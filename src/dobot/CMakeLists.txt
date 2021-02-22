@@ -7,7 +7,6 @@ project(dobot)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-OPTION(DEFINE_PC "Option description" ON)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -27,10 +26,9 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 
 find_package(Threads REQUIRED)
 
-IF(DEFINE_PC)
-    add_definitions(
+add_definitions(
     -DMODEL=dobot -DNUMST=2 -DNCSTATES=0 -DHAVESTDIO -DTERMFCN=1 -DONESTEPFCN=1 -DMAT_FILE=0 -DMULTI_INSTANCE_CODE=0 -DINTEGER_CODE=0 -DMT=0 -DCLASSIC_INTERFACE=0 -DALLOCATIONFCN=0 -DUSE_RTMODEL -DERT -DTID01EQ=1 -DROS_PROJECT -DMW_SCHED_OTHER -DSTACK_SIZE=64 -D__MW_TARGET_USE_HARDWARE_RESOURCES_H__ -DRT=RT )
-ENDIF(DEFINE_PC)
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -224,33 +222,6 @@ CATKIN_DEPENDS roscpp rospy std_msgs message_runtime geometry_msgs
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
-#if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    #include_directories(
-      #${catkin_INCLUDE_DIRS}
-      #src/include/DobotDll_x64
-    #)
-
-    #link_directories(
-      #src/include/DobotDll_x64
-    #)
-#else()
-   # include_directories(
-      #${catkin_INCLUDE_DIRS}
-      #src/include/DobotDll_x64
-    #)
-
-    #link_directories(
-      #src/include/DobotDll_x64
-    #)
-#endif()
-
-IF(DEFINE_PC)
-    set(DOBOT_DLL "${CMAKE_CURRENT_SOURCE_DIR}/include/DobotDll_x64/")
-ELSE(DEFINE_PC)
-    set(DOBOT_DLL "${CMAKE_CURRENT_SOURCE_DIR}/include/DobotDll_rpi/")
-ENDIF(DEFINE_PC)
-
-message(${DOBOT_DLL})
 
 find_library(QT_CORE QtCore)
 
@@ -262,15 +233,15 @@ set(QT_PATH "/usr/include/qt4/")
 
 # find_path(QT_PATH QtCore/qglobal.h)
 
-IF(DEFINE_PC)
-    set(SIM_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/simulation_servo_agent/")
-    message(${SIM_SOURCE_DIR})
-    include_directories(${SIM_SOURCE_DIR})
 
-    set(SIM_NO_NOISE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/simulation_servo_agent_no_noise/")
-    message(${SIM_NO_NOISE_DIR})
-    include_directories(${SIM_NO_NOISE_DIR})
-ENDIF(DEFINE_PC)
+set(SIM_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/simulation_servo_agent/")
+message(${SIM_SOURCE_DIR})
+include_directories(${SIM_SOURCE_DIR})
+
+set(SIM_NO_NOISE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/simulation_servo_agent_no_noise/")
+message(${SIM_NO_NOISE_DIR})
+include_directories(${SIM_NO_NOISE_DIR})
+
 
 message(${QT_CORE})
 message(${QT_PATH})
@@ -280,25 +251,21 @@ include_directories(
   ${Boost_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
   ${QT_PATH}
-  ${DOBOT_DLL}
 )
 
-link_directories(${DOBOT_DLL})
-
 add_executable(conveyor_belt_agent src/conveyor_belt_agent/ConveyorBeltAgentNode.cpp src/conveyor_belt_agent/ConveyorBeltAgent.cpp)
-target_link_libraries(conveyor_belt_agent ${catkin_LIBRARIES} DobotDll "${QT_CORE}")
+target_link_libraries(conveyor_belt_agent ${catkin_LIBRARIES} "${QT_CORE}")
 add_dependencies(conveyor_belt_agent dobot_gencpp ${PROJECT_NAME}_EXPORTED_TARGETS ${PROJECT_NAME}_generate_messages_cpp)
 
 add_executable(conveyor_gateway src/conveyor_gateway/ConveyorGateway.cpp src/conveyor_gateway/ConveyorGatewayNode.cpp)
 set_target_properties(conveyor_gateway PROPERTIES OUTPUT_NAME conveyor_gateway PREFIX "")
-target_link_libraries(conveyor_gateway ${catkin_LIBRARIES} ${Boost_LIBRARIES} DobotDll ${OPENSSL_CRYPTO_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(conveyor_gateway ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(conveyor_gateway ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} dobot_gencpp)
 
-IF(DEFINE_PC)
 file(GLOB simulation_servo_agent_C_SOURCES ${SIM_SOURCE_DIR}/*.c)
 file(GLOB simulation_servo_agent_no_noise_C_SOURCES ${SIM_NO_NOISE_DIR}/*.c)
 
-## Declare executable
+## Declare executable for generated ROS agent from MATLAB Simulink motor model
 add_executable(simulation_servo_agent
    ${SIM_SOURCE_DIR}/simulation_servo_agent_9c2ac8b8_1_ds.c
    ${SIM_SOURCE_DIR}/simulation_servo_agent_9c2ac8b8_1_ds_f.c
@@ -380,7 +347,6 @@ target_link_libraries(simulation_servo_agent_no_noise
    rt
 )
 set_target_properties(simulation_servo_agent_no_noise PROPERTIES COMPILE_FLAGS " ")
-ENDIF(DEFINE_PC)
 
 # add -fpic option, otherwise fail
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")

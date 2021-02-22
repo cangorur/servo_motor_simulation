@@ -29,7 +29,7 @@ do
   	      echo ""
           echo "   [--gateway]:    If provided, it runs gateways for each of the conveyor launched. The gateway starts a websocket (RESTful) to communicate with the devices also from outside of ROS environment. By default, it DOES NOT run any gateway."
   	      echo ""
-          echo "   [--port]:    If provided, access to REST interfaces is through the given port. For each conveyor, a unique port is defined. The first conveyor takes the provided port, the rest adds +1. E.g., if port:10000 for conveyor_belt_agent_1, then it is 10001 for the 2nd agent. By default (if not provided), it starts from 10000."
+          echo "   [--port]:    If provided, access to REST interfaces is through the given port. For each conveyor, a unique port is defined. The first conveyor takes the provided port, the rest adds +1. E.g., if port:10000 for conveyor_belt_agent_1, then it is 10001 for the 2nd agent. By default, it starts from 10000."
           echo ""
   	      exit
           ;;

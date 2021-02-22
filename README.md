@@ -5,10 +5,10 @@ by Orhan Can Görür (cangorur88@gmail.com), Xin Yu (marvelous.islander@gmail.co
 
 The goal of this project is:
 1. To simulate a digital twin for a servo motor (with adjustable load and motor parameters)
-2. To control and monitor the twin model
+2. To control and monitor the twin model and run it as a ROS agent
 3. To interface the system for several IoT and ML applications (e.g., predictive maintenance, adaptive control)
 
-Below are the instructions to successfully install and run the ROS package for the conveyor unit and its servo motor control applications. We have developed a customizable servo motor simulation based on a Matlab DC Motor control example and tailored it to act as a digital twin model of a Dynamixel XL430-W250-T servo motor from Robotis [1]. Our goal is to simulate a real (small-scale) conveyor belt behavior for our industrial IoT project (i.e., CHARIOT [2]) that runs predictive maintenance applications [3]. This project involves just the simulated conveyor belt (servo motor).
+Below are the instructions to successfully install and run the ROS package for the servo motor control applications. We have developed a customizable servo motor simulation based on a Matlab DC Motor control example and tailored it to act as a digital twin model of a Dynamixel XL430-W250-T servo motor from Robotis [1]. Our goal is to simulate a real (small-scale) conveyor belt behavior for our industrial IoT project (i.e., CHARIOT [2]) that runs predictive maintenance applications [3]. This project involves just the simulated conveyor belt (servo motor).
 
 The system runs on ROS and provides many services and topics for an easy access. It is possible to run multiple conveyor belt simulations in parallel, each has a separate interface with unique motor IDs and generates a unique behavior. The system builds a driver agent for the servo motor, a device agent that abstracts the motor behaviors, and an IoT gateway that allows for control and monitoring of the abstracted behaviors through a REST interface (see the Architecture figure).
 
@@ -66,7 +66,7 @@ Run options:
 - [--help]: Type help to see the options
 
 This will launch the following:
- - simulation_servo_agent_<ID>: Simulated motor running on ROS framework with an integer ID
+ - simulation_servo_agent_<ID>: Simulated motor running on ROS framework with an integer ID (if 3 motors are running, then the IDs are 1, 2, and 3).
  - conveyor_belt_agent_<ID>: ROS agent that abstracts the behaviors of the servo motor (abstraction layer)
  - (optional) conveyor_gateway_<ID>: Gateway agent that allows access to the abstracted behavior through a REST interface
 
@@ -90,14 +90,18 @@ run_motor --id <integer_id> --speed <float_speed in m/s>
 - To generate an abnormal torque:
 
 ```
-generate_torque  --enable # This generates a ramp torque (a linear increase) for 100 secs on the load --> increase in the drained current and the power
+generate_torque --id <integer_id> --enable
+
+# This generates a ramp torque (a linear increase) on motor-1 (if ID not provided, it is 1 by default) for 100 secs on the load --> increase in the drained current and the power
 ```
 Please see the services section ([here](#services)) to generate different load behaviors, e.g., sinusoidal, step, using ROS services.
 
 - To remove any existing torque:
 
 ```
-generate_torque  --disable # This removes the torque immediately. The power values should get back to normal.  
+generate_torque  --id <integer_id> --disable
+
+# This removes the torque immediately. The power values should get back to normal.  
 ```
 
 - To access to the motor readings, we provide two options. You can either directly read from ROS topics or through the REST interface (see the next section). To read from topics:
@@ -119,6 +123,13 @@ acceleration: -0.763333333336
 ---
 ```
 
+- For applications, a simple plot python script is also provided that takes ID of the motor as input and plots velocity, current, power graphs and records the real-time data into a .csv file automatically.
+
+```
+cd src/dobot/src
+python motor_plot.py <integer_motor_id> # e.g., python motor_plot.py 2
+```
+
 ### REST Interface (Control & Monitor)
 
 JSON templates for the message format and an easy messaging script for tests are provided under [here](./src/dobot/test_websocket/). Please refer to the readme file for message format and details.
@@ -127,7 +138,7 @@ In summary, we have one data model for both requests and responses. There are tw
 
 
 ### Customize Motor Properties
-The simulated motor is a digital twin for Dynamixel XL430-W250-T servo motor. We modelled the motor in Matlab Simulink environment and converted it to a ROS agent. To change the motor parameters and behaviors please refer to the Readme file under [here](./src/dobot/src/simulation_motor_matlab/Readme.md).
+The simulated motor is a digital twin for Dynamixel XL430-W250-T servo motor. We modelled the motor in Matlab Simulink environment and converted it to a ROS agent. To change the motor parameters and behaviors please refer to the Readme file under [here](./src/dobot/src/simulation_motor_matlab/README.md).
 
 ---
 
@@ -195,8 +206,6 @@ rosservice call /conveyor_belt_agent_<integer ID of the simulation motor>/genera
 Note that the service definitions of generateNormalTorqueSimMid and generateAbnormalTorqueSimMid are the same as the services generateNormalBehavior and generateAbnormalBehavior defined in application layer.
 For detailed explanations please refer to the previous part.
 
-
-
 ## Topics
 ***Application layer***:
 ```
@@ -210,16 +219,10 @@ For detailed explanations please refer to the previous part.
 /conveyor_belt_agent_<integer ID of the simulation motor>/infrared_app
 /conveyor_belt_agent_<integer ID of the simulation motor>/motor_data_operated
 ```
-***Physical layer***:
-```
-/simulation_servo_agent_<integer ID of the simulation motor>/motor_raw_data
-/simulation_servo_agent_<integer ID of the simulation motor>/motor_raw_data
-/dynamixel_servo_agent/motor_raw_data
-```
 
 ## Documentation
 ```
-rosdoc_lite YOUR_PATH/dobot-conveyor-unit/src/dobot
+rosdoc_lite YOUR_PATH/servo_motor_simulation/src/dobot
 ```
 This will generate the doxygen style documentation under doc/ in YOUR_PATH/dobot_ws/src/dobot.
 
@@ -228,14 +231,6 @@ Integration Version 3.1 - 19th Nov 2018
 Document Version 3.4 - 17th Feb 2020 (simplified version for only simulation)
 Document Version 3.3 - 17th Dec 2018
 Document Version 3.2 - 26th Nov 2018
-
-## Existing Issues
-1. Motor Input Voltage Error/Motor Encoder Error/Overload Error, please take a look at the wiki
-2. Existing issues with the adaptive control performance on the real motor, please also take a look at the wiki
-
-## TODO
-1. Merge branch hrc_integration to branch develop, create a stable demo version
-2. Add the newly added dobot related services to this README.md
 
 ## References
 [1] http://www.robotis.us/dynamixel-xl430-w250-t/

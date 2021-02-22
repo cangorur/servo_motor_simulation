@@ -1,29 +1,42 @@
 #!/bin/bash
 
 homedir="$( cd "$( dirname "$0" )" && pwd )"
+cd ${homedir} && source devel/setup.sh
 
 ENABLE=""
-case "$1" in
-    "--enable") echo "A ramp torque is applied!"
-	      ENABLE=true
-	      ;;
-    "--disable") echo "The torque is removed!"
-	      ENABLE=false
-	      ;;
-    "--help") echo "   [--enable]:  (Optional) Adds an additional ramp torque that increases in time. This causes an increase in the power values."
-        echo " "
-        echo "   [--disable]:  Disables or deactivates any torque that is previously applied."
-        exit
-        ;;
-esac
+ID=1
 
-cd ${homedir} && source devel/setup.sh
+for ((i=1; i<=$#; i++));
+do
+  val=$((i+1))
+  case "${!i}" in
+      "--id")
+          ID=${!val}
+          ;;
+      "--enable")
+          ENABLE=true
+          ;;
+      "--disable")
+  	      ENABLE=false
+  	      ;;
+      "--help")
+          echo "   [--id]:  Input the integer ID of the motor that will receive the additional torque. Default value is 1."
+          echo " "
+          echo "   [--enable]:  (Optional) Adds an additional ramp torque that increases in time. This causes an increase in the power values."
+          echo " "
+          echo "   [--disable]:  Disables or deactivates any torque that is previously applied."
+          exit
+          ;;
+  esac
+done
 
 if [ "$ENABLE" != false ];
 then
-    cmd="rosservice call /conveyor_belt_agent_1/generateAbnormalTorqueSimMid $'isEnabled: true\nindex: 0\ntype: ramp\nparam1: 0.01\nparam2: 0.0\nholdTime: 100.0'"
+    cmd="rosservice call /conveyor_belt_agent_$ID/generateAbnormalTorqueSimMid $'isEnabled: true\nindex: 0\ntype: ramp\nparam1: 0.01\nparam2: 0.0\nholdTime: 100.0'"
     eval $cmd
+    echo "A ramp torque is applied on Motor ID=$ID!"
 else
-    cmd="rosservice call /conveyor_belt_agent_1/generateAbnormalTorqueSimMid $'isEnabled: false'"
+    cmd="rosservice call /conveyor_belt_agent_$ID/generateAbnormalTorqueSimMid $'isEnabled: false'"
     eval $cmd
+    echo "Torque (load) is removed from Motor ID=$ID!!"
 fi

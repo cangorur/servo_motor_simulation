@@ -1,8 +1,9 @@
 #!/bin/bash
 
 homedir="$( cd "$( dirname "$0" )" && pwd )"
+cd ${homedir} && source devel/setup.sh
 
-SPEED=""
+SPEED=25
 MOTOR_ID=1
 
 for (( i=1; i<=$#; i++));
@@ -11,10 +12,9 @@ do
   case "${!i}" in
       "--id")
           val=$((i+1))
-          echo "Provided motor_id to change the speed: ${!val}"
           MOTOR_ID=${!val}
           ;;
-      "--speed") echo "Provided speed value: ${!val} m/s"
+      "--speed")
   	      SPEED=${!val}
   	      ;;
       "--help") echo " [--id]: ID (as an integer number) of the motor to control the speed. By default it is 1. "
@@ -25,13 +25,7 @@ do
   esac
 done
 
-echo "cd ${homedir} && source devel/setup.bash"
+cmd="rosservice call /conveyor_belt_agent_$MOTOR_ID/setMotorSpeedSimMid $'isEnabled: true\nspeed: $SPEED'"
+eval $cmd
 
-if [ "$SPEED" != "" ];
-then
-    cmd="rosservice call /conveyor_belt_agent_$MOTOR_ID/setMotorSpeedSimMid $'isEnabled: true\nspeed: $SPEED'"
-    eval $cmd
-else
-    cmd="rosservice call /conveyor_belt_agent_$MOTOR_ID/setMotorSpeedSimMid $'isEnabled: true\nspeed: 25'"
-    eval $cmd
-fi
+echo "$SPEED m/s is commanded to the motor-$MOTOR_ID"

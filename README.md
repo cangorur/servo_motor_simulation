@@ -25,10 +25,10 @@ Simply, on the device layer there is `simulation_servo_agent` that runs the simu
 ---
 
 ## Prerequisites
-- ROS
+- ROS (tested with Kinetic and Melodic)
 - tmux (`sudo apt install tmux`)
 
-The code is tested with ROS Kinetic running on Ubuntu 16.04. It should theoretically be possible to run it on later versions of ROS, but this is not tested.
+The code is tested both with ROS Kinetic and Melodic running on Ubuntu 16.04 and 18.04 versions. It should theoretically be possible to run it on later versions of ROS, but this is not tested.
 No special ROS packages are needed apart from those which come with a standard installation of ROS.
 Tmux installation is required only for the automated launch scripts
 
@@ -127,6 +127,7 @@ acceleration: -0.763333333336
 
 ```
 cd src/dobot/src
+source ../../../devel/setup.bash # sourcing ROS env. so python script accesses ROS topics
 python motor_plot.py <integer_motor_id> # e.g., python motor_plot.py 2
 ```
 

@@ -166,7 +166,6 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 if __name__ == '__main__':
-    ##Define data source path
 
     if len(sys.argv) < 2:
         print "Missing arguments: ID of the motor as an integer. E.g., python motor_plot.py 2 # this will plot real-time data of motor_2"

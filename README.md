@@ -1,7 +1,7 @@
 Servo Motor (Conveyor Belt) Simulation on ROS
 ============
 
-by Orhan Can Görür (cangorur88@gmail.com), Xin Yu (marvelous.islander@gmail.com), Oguz Ozdemir
+by Orhan Can Görür (cangorur88@gmail.com), Xin Yu (marvelous.islander@gmail.com), Oguz Ozdemir. Please refer to [Credits](#credits) section for any intended use of this code.
 
 The goal of this project is:
 1. To simulate a digital twin for a servo motor (with adjustable load and motor parameters)
@@ -235,7 +235,10 @@ Version 3.2 - 26th Nov 2018
 ## References
 
 [1] http://www.robotis.us/dynamixel-xl430-w250-t/
-
 [2] https://chariot.gt-arc.com/
-
 [3] https://github.com/GT-ARC/chariot-ml-engine
+
+## Credits
+ 
+In any use of this code, please let the author know and please cite the article below:
+- Görür, O.C.; Yu, X.; Sivrikaya, F. Integrating Predictive Maintenance in Adaptive Process Scheduling for a Safe and Efficient Industrial Process. Appl. Sci. 2021, 11, 5042. https://doi.org/10.3390/app11115042
